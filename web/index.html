@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="jquery-3.1.0.min.js"></script>
+        <script>
+            var login;
+            var spaceCount = 9;
+
+            function koordIn(val) {
+                document.getElementById('koord').value = val;
+            }
+
+            function getSpace() {
+                var data = {};
+                data["comand"] = "getSpace";
+
+                $.ajax({
+                    url: "AjaxServletKitten",
+                    data: data
+                }).done(function (date) {
+                    //alert(date);
+                    var arr = eval(date);
+                    var str = "";
+                    for (var i = 0; i < 9; i++) {
+                        str = str + "<tr>";
+                        for (var j = 0; j < 9; j++) {
+                            str = str + "<td id=\"td_" + (i * 9 + j) + "\">";
+
+                            if (arr["td_" + (i * 9 + j)] == null || arr["td_" + (i * 9 + j)] == "") {
+                                str = str + "<input class=\"ipt\" type=\"button\" onclick=\"koordIn('";
+                                str = str + (i * 9 + j) + "')\" value=\"" + (i * 9 + j) + "\">";
+                            } else if (arr["td_" + (i * 9 + j)] == "9") {
+                                str = str + "<img src=\"cat.png\" width=\"48\" height=\"48\" alt=\"cat\">";
+                            } else {
+                                str = str + (i * 9 + j);
+                            }
+                            str = str + "</td>";
+                        }
+                        str = str + "</tr>";
+                        //alert(i + ". (" + str + ")");
+                    }
+
+                    $("h2").html("Пользователь " + login);
+                    $("h3").html("сделал " + steps + " шагов");
+                    $("#myForm").css("border", "4px double #A67B00");
+                    $("#myForm").css("background", "#FFCE40");
+                    $("#myForm").css("padding", "10px");
+                    $("#myForm").css("width", "470");
+                    $("#myForm").css("height", "470");
+                    $("#myForm").html(str);
+                    $(".ipt").css("width", "48px");
+                    $(".ipt").css("height", "48px");
+                    $(".ipt").css("padding", "0px");
+                    $(".ipt").css("text-align", "center");
+                    $("td").css("background", "#A67B00");
+                    $("td").css("text-align", "center");
+                    $("td").css("width", "48px");
+                    $("td").css("height", "48px");
+                });
+            }
+
+            function addAndNewStep() {
+                var data = {};
+                data["addAndNewStep"] = "addAndNewStep";
+                var x = $('#koord').prop("value");
+                data["comand"] = "addAndNewStep";
+                data["x"] = (x - x % spaceCount) / spaceCount;
+                data["y"] = x % spaceCount;
+                $.ajax({
+                    url: "AjaxServletKitten",
+                    data: data
+                }).done(function (date) {
+
+                    var arr = eval(date);
+                    var str = "";
+                    for (var i = 0; i < 9; i++) {
+                        str = str + "<tr>";
+                        for (var j = 0; j < 9; j++) {
+                            str = str + "<td id=\"td_" + (i * 9 + j) + "\">";
+
+                            if (arr["td_" + (i * 9 + j)] == null || arr["td_" + (i * 9 + j)] == "") {
+                                str = str + "<input class=\"ipt\" type=\"button\" onclick=\"koordIn('";
+                                str = str + (i * 9 + j) + "')\" value=\"" + (i * 9 + j) + "\">";
+                            } else if (arr["td_" + (i * 9 + j)] == "9") {
+                                str = str + "<img src=\"cat.png\" width=\"48\" height=\"48\" alt=\"cat\">";
+                            } else {
+                                str = str + (i * 9 + j);
+                            }
+                            str = str + "</td>";
+                        }
+                        str = str + "</tr>";
+                        //alert(i + ". (" + str + ")");
+                    }
+
+                    if (arr["getStatus"] == "2") {
+                        alert("You win!");
+                        $(".ipt2").remove();
+                    }
+                    if (arr["getStatus"] == "1") {
+                        alert("You lose!");
+                        $(".ipt2").remove();
+                    }
+                    $("h2").html("Пользователь " + login);
+                    $("h3").html("сделал " + steps + " шагов");
+                    $("#myForm").css("border", "4px double #A67B00");
+                    $("#myForm").css("background", "#FFCE40");
+                    $("#myForm").css("padding", "10px");
+                    $("#myForm").css("width", "470");
+                    $("#myForm").css("height", "470");
+                    $("#myForm").html(str);
+                    $(".ipt").css("width", "48px");
+                    $(".ipt").css("height", "48px");
+                    $(".ipt").css("padding", "0px");
+                    $(".ipt").css("text-align", "center");
+                    $("td").css("background", "#A67B00");
+                    $("td").css("text-align", "center");
+                    $("td").css("width", "48px");
+                    $("td").css("height", "48px");
+                });
+            }
+
+            function getStatus() {
+                var data = {};
+                data["comand"] = "getStatus";
+                $.ajax({
+                    url: "AjaxServletKitten",
+                    data: data
+                }).done(function (data) {
+                    var arr = eval(data);
+                    if (arr["getStatus"] == "1") {
+                        alert("You win!");
+                    }
+                    if (arr["getStatus"] == "2") {
+                        alert("You lose!");
+                    }
+                });
+            }
+
+            function send() {
+                if ($('#koord').prop("value") !== "") {
+                    addAndNewStep();
+                }
+            }
+            var steps = 0;
+
+            function show() {
+                login = $("input").prop("value");
+                getSpace();
+                $("p").html("Выбранны координаты: <input class=\"ipt2\" type=\"text\" value=\"\"  name=\"koord\" id=\"koord\" size=\"10\">\n\
+        <button class=\"ipt2\" onclick=\"send()\">Отправить</button>");
+            }
+        </script>
+    </head>
+
+    <body>
+    <center>
+        <h2>Добро пожаловать!</h2>
+        <h3>Введите логин:</h3>
+        <table id="myForm">
+            <tr>
+                <td>Логин</td>
+                <td><input type="text" name="name" value="Anonimus"></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><button onclick="show()">Отправить</button></td>
+            </tr>
+        </table>
+        <p></p>
+    </center>
+</body>
+</html>
